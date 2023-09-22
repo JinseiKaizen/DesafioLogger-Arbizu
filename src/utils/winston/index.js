@@ -1,20 +1,17 @@
-const winston = require("winston");
-const { config } = require("../../config");
+const winston = require('winston');
 
-const transports = [
-    new winston.transports.Console({level: config.isProd ? "http" : "verbose"}),
-    
-]
-
-if (config.isProd) {
-    transports.push(new winston.transports.File({filename: "prod.log", level: "warn"}))
-}
 const logger = winston.createLogger({
-    transports
-})
+  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+  transports: [
+    new winston.transports.Console({
+      format: winston.format.simple(),
+    }),
+    new winston.transports.File({
+      filename: './errors.log',
+      level: 'error',
+      format: winston.format.simple(),
+    }),
+  ],
+});
 
-module.exports = (req, res, next) => {
-    req.logger = logger;
-    // req.logger.error(`${req.method} ${req.url} - ${new Date().toLocaleDateString()}`)
-    next();
-}
+module.exports = logger;
